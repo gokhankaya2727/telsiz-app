@@ -8,11 +8,12 @@
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
-            background: #07110c;
+            background: #061008;
             color: #eafff1;
             font-family: Arial, sans-serif;
         }
@@ -34,15 +35,21 @@
         .logo {
             font-size: 26px;
             font-weight: bold;
-            color: #00ff66;
+            color: #46ff5f;
         }
 
         .badge {
             background: #12351f;
-            color: #00ff66;
+            color: #46ff5f;
             padding: 7px 12px;
             border-radius: 20px;
             font-size: 13px;
+            font-weight: bold;
+        }
+
+        .badge.busy {
+            background: #3b1010;
+            color: #ff4b4b;
         }
 
         .card {
@@ -67,7 +74,7 @@
         }
 
         input:focus {
-            border-color: #00ff66;
+            border-color: #46ff5f;
         }
 
         .join {
@@ -76,7 +83,7 @@
             margin-top: 14px;
             border: none;
             border-radius: 14px;
-            background: #00ff66;
+            background: #46ff5f;
             color: #001607;
             font-size: 17px;
             font-weight: bold;
@@ -88,7 +95,8 @@
             margin-top: 20px;
             font-size: 18px;
             min-height: 28px;
-            color: #00ff66;
+            color: #46ff5f;
+            font-weight: bold;
         }
 
         .channel {
@@ -98,19 +106,50 @@
             font-size: 14px;
         }
 
+        .talking-box {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 16px;
+            background: #07110c;
+            border: 1px solid #1f3f29;
+            color: #9fbba8;
+            text-align: center;
+            font-size: 16px;
+            min-height: 50px;
+        }
+
+        .talking-box.active {
+            color: #46ff5f;
+            border-color: #46ff5f;
+            box-shadow: 0 0 25px #00ff6655;
+            animation: pulseBox 1s infinite;
+        }
+
+        .talking-box.busy {
+            color: #ff4b4b;
+            border-color: #ff4b4b;
+            box-shadow: 0 0 25px #ff4b4b55;
+        }
+
+        @keyframes pulseBox {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
         .ptt-wrap {
             display: flex;
             justify-content: center;
-            margin-top: 34px;
+            margin-top: 28px;
         }
 
         #ptt {
             width: 210px;
             height: 210px;
             border-radius: 50%;
-            border: 5px solid #00ff66;
+            border: 5px solid #46ff5f;
             background: radial-gradient(circle, #14251a, #07110c);
-            color: #00ff66;
+            color: #46ff5f;
             font-size: 38px;
             font-weight: bold;
             box-shadow: 0 0 35px #00ff6640;
@@ -119,10 +158,23 @@
         }
 
         #ptt.active {
-            background: #00ff66;
+            background: #46ff5f;
             color: #001607;
-            box-shadow: 0 0 55px #00ff66;
-            transform: scale(0.97);
+            box-shadow: 0 0 60px #46ff5f;
+            transform: scale(0.96);
+            animation: pulsePTT 0.8s infinite;
+        }
+
+        #ptt.busy {
+            border-color: #ff4b4b;
+            color: #ff4b4b;
+            box-shadow: 0 0 40px #ff4b4b66;
+        }
+
+        @keyframes pulsePTT {
+            0% { box-shadow: 0 0 25px #46ff5f; }
+            50% { box-shadow: 0 0 75px #46ff5f; }
+            100% { box-shadow: 0 0 25px #46ff5f; }
         }
 
         .users-title {
@@ -141,6 +193,7 @@
             color: #ffffff;
             font-size: 15px;
             line-height: 1.6;
+            white-space: pre-line;
         }
 
         .footer {
@@ -155,13 +208,14 @@
         }
     </style>
 </head>
+
 <body>
 
 <div class="app">
 
     <div class="top">
         <div class="logo">📡 TELSİZ</div>
-        <div class="badge">ONLINE</div>
+        <div class="badge" id="onlineBadge">ONLINE</div>
     </div>
 
     <div class="card">
@@ -173,6 +227,10 @@
 
     <div class="status" id="status">Hazır</div>
     <div class="channel" id="channelText">Kanal yok</div>
+
+    <div class="talking-box" id="talkingBox">
+        Kimse konuşmuyor
+    </div>
 
     <div class="ptt-wrap">
         <button id="ptt">PTT</button>
@@ -207,6 +265,8 @@
     const channelText = document.getElementById("channelText");
     const usersDiv = document.getElementById("users");
     const audiosDiv = document.getElementById("audios");
+    const talkingBox = document.getElementById("talkingBox");
+    const onlineBadge = document.getElementById("onlineBadge");
 
     const config = {
         iceServers: [
@@ -245,6 +305,7 @@
 
         statusText.innerText = "Kanala katıldın";
         channelText.innerText = "Kanal: " + room;
+        talkingBox.innerText = "Kimse konuşmuyor";
     }
 
     function createPeer(targetId) {
@@ -378,28 +439,71 @@
 
         audioTrack.enabled = false;
         pttButton.classList.remove("active");
+        pttButton.classList.remove("busy");
+
         statusText.innerText = "Dinlemede";
+
+        talkingBox.classList.remove("active");
+        talkingBox.classList.remove("busy");
+        talkingBox.innerText = "Kimse konuşmuyor";
+
+        onlineBadge.classList.remove("busy");
+        onlineBadge.innerText = "ONLINE";
+
         socket.emit("ptt-stop");
     }
 
     socket.on("ptt-start", (data) => {
+        talkingBox.classList.add("active");
+
         if (data.id === socket.id) {
             audioTrack.enabled = true;
+
             pttButton.classList.add("active");
+            pttButton.classList.remove("busy");
+
             statusText.innerText = "Konuşuyorsun...";
+            talkingBox.innerText = "🎙️ Sen konuşuyorsun";
+
+            onlineBadge.classList.remove("busy");
+            onlineBadge.innerText = "TX";
         } else {
+            pttButton.classList.add("busy");
+
             statusText.innerText = "🎤 " + data.username + " konuşuyor...";
+            talkingBox.innerText = "🎤 " + data.username + " konuşuyor...";
+
+            onlineBadge.classList.add("busy");
+            onlineBadge.innerText = "BUSY";
         }
     });
 
     socket.on("ptt-stop", () => {
         if (audioTrack) audioTrack.enabled = false;
+
         pttButton.classList.remove("active");
+        pttButton.classList.remove("busy");
+
         statusText.innerText = "Dinlemede";
+
+        talkingBox.classList.remove("active");
+        talkingBox.classList.remove("busy");
+        talkingBox.innerText = "Kimse konuşmuyor";
+
+        onlineBadge.classList.remove("busy");
+        onlineBadge.innerText = "ONLINE";
     });
 
     socket.on("channel-busy", (data) => {
-        statusText.innerText = "⛔ Kanal meşgul: " + data.username;
+        pttButton.classList.add("busy");
+
+        statusText.innerText = "⛔ Kanal meşgul";
+        talkingBox.classList.add("active");
+        talkingBox.classList.add("busy");
+        talkingBox.innerText = "⛔ " + data.username + " konuşuyor";
+
+        onlineBadge.classList.add("busy");
+        onlineBadge.innerText = "BUSY";
     });
 
     pttButton.addEventListener("mousedown", startPTT);
