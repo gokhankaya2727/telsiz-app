@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Telsiz App</title>
+    <title>Telsiz App Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -13,16 +13,18 @@
 
         body {
             margin: 0;
-            background: #061008;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #12351f 0%, transparent 35%),
+                linear-gradient(180deg, #020604, #07110c);
             color: #eafff1;
             font-family: Arial, sans-serif;
         }
 
         .app {
-            max-width: 430px;
+            max-width: 440px;
             margin: auto;
             min-height: 100vh;
-            background: linear-gradient(180deg, #0d1d14, #050805);
             padding: 18px;
         }
 
@@ -30,44 +32,72 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
         }
 
         .logo {
-            font-size: 26px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 900;
             color: #46ff5f;
+            letter-spacing: 1px;
+        }
+
+        .sub {
+            color: #8fb99a;
+            font-size: 12px;
+            margin-top: 3px;
         }
 
         .badge {
-            background: #12351f;
+            background: #102819;
             color: #46ff5f;
-            padding: 7px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
+            padding: 9px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 1px solid #235c34;
         }
 
         .badge.busy {
             background: #3b1010;
             color: #ff4b4b;
+            border-color: #ff4b4b;
         }
 
-        .card {
-            background: #101a13;
+        .panel {
+            background: rgba(13, 28, 18, 0.92);
+            border: 1px solid #1d4428;
+            border-radius: 28px;
+            padding: 18px;
+            box-shadow: 0 20px 60px rgba(0, 255, 102, 0.12);
+        }
+
+        .login-card {
+            background: #08120c;
             border: 1px solid #1f3f29;
             border-radius: 22px;
-            padding: 18px;
-            margin-top: 18px;
-            box-shadow: 0 0 25px #00ff6620;
+            padding: 15px;
+        }
+
+        .label {
+            color: #8fb99a;
+            font-size: 12px;
+            margin-top: 8px;
+            margin-bottom: 5px;
+            text-align: left;
         }
 
         input {
             width: 100%;
             padding: 15px;
-            margin-top: 10px;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid #245d38;
-            background: #07110c;
+            background: #030806;
             color: white;
             font-size: 16px;
             outline: none;
@@ -75,132 +105,185 @@
 
         input:focus {
             border-color: #46ff5f;
+            box-shadow: 0 0 0 3px rgba(70, 255, 95, 0.12);
         }
 
         .join {
             width: 100%;
             padding: 15px;
-            margin-top: 14px;
+            margin-top: 15px;
             border: none;
-            border-radius: 14px;
-            background: #46ff5f;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #46ff5f, #18b84b);
             color: #001607;
             font-size: 17px;
-            font-weight: bold;
+            font-weight: 900;
             cursor: pointer;
+            box-shadow: 0 10px 25px rgba(70, 255, 95, 0.22);
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: #07110c;
+            border: 1px solid #1f3f29;
+            border-radius: 18px;
+            padding: 12px;
+            min-height: 68px;
+        }
+
+        .info-title {
+            color: #7ca887;
+            font-size: 12px;
+        }
+
+        .info-value {
+            margin-top: 7px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            word-break: break-word;
         }
 
         .status {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 18px;
             font-size: 18px;
             min-height: 28px;
             color: #46ff5f;
-            font-weight: bold;
-        }
-
-        .channel {
-            text-align: center;
-            color: #9fbba8;
-            margin-top: 6px;
-            font-size: 14px;
+            font-weight: 900;
         }
 
         .talking-box {
-            margin-top: 16px;
-            padding: 14px;
-            border-radius: 16px;
+            margin-top: 14px;
+            padding: 15px;
+            border-radius: 20px;
             background: #07110c;
             border: 1px solid #1f3f29;
             color: #9fbba8;
             text-align: center;
             font-size: 16px;
-            min-height: 50px;
+            min-height: 56px;
         }
 
         .talking-box.active {
             color: #46ff5f;
             border-color: #46ff5f;
-            box-shadow: 0 0 25px #00ff6655;
+            box-shadow: 0 0 30px rgba(70, 255, 95, 0.35);
             animation: pulseBox 1s infinite;
         }
 
         .talking-box.busy {
             color: #ff4b4b;
             border-color: #ff4b4b;
-            box-shadow: 0 0 25px #ff4b4b55;
+            box-shadow: 0 0 30px rgba(255, 75, 75, 0.35);
         }
 
         @keyframes pulseBox {
             0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+            50% { transform: scale(1.025); }
             100% { transform: scale(1); }
         }
 
-        .ptt-wrap {
+        .ptt-area {
             display: flex;
             justify-content: center;
-            margin-top: 28px;
+            align-items: center;
+            margin-top: 26px;
+            position: relative;
+        }
+
+        .ring {
+            position: absolute;
+            width: 244px;
+            height: 244px;
+            border-radius: 50%;
+            border: 1px solid rgba(70, 255, 95, 0.18);
+        }
+
+        .ring.two {
+            width: 274px;
+            height: 274px;
+            opacity: 0.45;
         }
 
         #ptt {
-            width: 210px;
-            height: 210px;
+            position: relative;
+            z-index: 2;
+            width: 214px;
+            height: 214px;
             border-radius: 50%;
             border: 5px solid #46ff5f;
-            background: radial-gradient(circle, #14251a, #07110c);
+            background:
+                radial-gradient(circle at 35% 25%, #1d3d27, #07110c 60%),
+                #07110c;
             color: #46ff5f;
-            font-size: 38px;
-            font-weight: bold;
-            box-shadow: 0 0 35px #00ff6640;
+            font-size: 40px;
+            font-weight: 1000;
+            box-shadow:
+                inset 0 0 25px rgba(70, 255, 95, 0.12),
+                0 0 42px rgba(70, 255, 95, 0.26);
             cursor: pointer;
             user-select: none;
         }
 
         #ptt.active {
-            background: #46ff5f;
+            background: linear-gradient(135deg, #46ff5f, #1bd64d);
             color: #001607;
-            box-shadow: 0 0 60px #46ff5f;
+            box-shadow: 0 0 75px rgba(70, 255, 95, 0.8);
             transform: scale(0.96);
-            animation: pulsePTT 0.8s infinite;
+            animation: pulsePTT 0.75s infinite;
         }
 
         #ptt.busy {
             border-color: #ff4b4b;
             color: #ff4b4b;
-            box-shadow: 0 0 40px #ff4b4b66;
+            box-shadow: 0 0 45px rgba(255, 75, 75, 0.55);
         }
 
         @keyframes pulsePTT {
-            0% { box-shadow: 0 0 25px #46ff5f; }
-            50% { box-shadow: 0 0 75px #46ff5f; }
-            100% { box-shadow: 0 0 25px #46ff5f; }
+            0% { box-shadow: 0 0 30px rgba(70, 255, 95, 0.55); }
+            50% { box-shadow: 0 0 90px rgba(70, 255, 95, 0.95); }
+            100% { box-shadow: 0 0 30px rgba(70, 255, 95, 0.55); }
         }
 
-        .users-title {
-            margin-top: 26px;
-            font-size: 15px;
+        .users-card {
+            margin-top: 28px;
+            background: #07110c;
+            border: 1px solid #1f3f29;
+            border-radius: 22px;
+            padding: 15px;
+        }
+
+        .users-head {
+            display: flex;
+            justify-content: space-between;
             color: #9fbba8;
+            font-size: 14px;
+            margin-bottom: 10px;
         }
 
         #users {
-            margin-top: 10px;
-            background: #07110c;
-            border: 1px solid #1f3f29;
-            border-radius: 16px;
-            padding: 14px;
-            min-height: 50px;
             color: #ffffff;
             font-size: 15px;
-            line-height: 1.6;
+            line-height: 1.8;
             white-space: pre-line;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 25px;
-            color: #52745d;
+        .bottom-bar {
+            margin-top: 16px;
+            background: #040907;
+            border: 1px solid #173520;
+            border-radius: 18px;
+            padding: 12px;
+            color: #6e9278;
             font-size: 12px;
+            text-align: center;
         }
 
         .hidden-audios {
@@ -214,36 +297,64 @@
 <div class="app">
 
     <div class="top">
-        <div class="logo">📡 TELSİZ</div>
+        <div class="brand">
+            <div class="logo">📡 TELSİZ</div>
+            <div class="sub">Online Push-To-Talk Sistemi</div>
+        </div>
         <div class="badge" id="onlineBadge">ONLINE</div>
     </div>
 
-    <div class="card">
-        <input id="username" placeholder="Kullanıcı adın">
-        <input id="room" placeholder="Kanal adı">
+    <div class="panel">
 
-        <button class="join" onclick="joinRoom()">Kanala Katıl</button>
+        <div class="login-card">
+            <div class="label">Kullanıcı Adı</div>
+            <input id="username" placeholder="Örn: Gökhan">
+
+            <div class="label">Kanal</div>
+            <input id="room" placeholder="Örn: merkez">
+
+            <button class="join" onclick="joinRoom()">KANALA KATIL</button>
+        </div>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-title">Aktif Kanal</div>
+                <div class="info-value" id="channelText">Yok</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">Durum</div>
+                <div class="info-value" id="miniStatus">Hazır</div>
+            </div>
+        </div>
+
+        <div class="status" id="status">Hazır</div>
+
+        <div class="talking-box" id="talkingBox">
+            Kimse konuşmuyor
+        </div>
+
+        <div class="ptt-area">
+            <div class="ring"></div>
+            <div class="ring two"></div>
+            <button id="ptt">PTT</button>
+        </div>
+
+        <div class="users-card">
+            <div class="users-head">
+                <span>Bağlı kişiler</span>
+                <span id="userCount">0 kişi</span>
+            </div>
+            <div id="users">Henüz kimse yok</div>
+        </div>
+
+        <div class="bottom-bar">
+            WebRTC • Socket.io • Online Telsiz
+        </div>
+
     </div>
-
-    <div class="status" id="status">Hazır</div>
-    <div class="channel" id="channelText">Kanal yok</div>
-
-    <div class="talking-box" id="talkingBox">
-        Kimse konuşmuyor
-    </div>
-
-    <div class="ptt-wrap">
-        <button id="ptt">PTT</button>
-    </div>
-
-    <div class="users-title">Bağlı kişiler</div>
-    <div id="users">Henüz kimse yok</div>
 
     <div id="audios" class="hidden-audios"></div>
-
-    <div class="footer">
-        WebRTC telsiz sistemi
-    </div>
 
 </div>
 
@@ -262,8 +373,10 @@
 
     const pttButton = document.getElementById("ptt");
     const statusText = document.getElementById("status");
+    const miniStatus = document.getElementById("miniStatus");
     const channelText = document.getElementById("channelText");
     const usersDiv = document.getElementById("users");
+    const userCount = document.getElementById("userCount");
     const audiosDiv = document.getElementById("audios");
     const talkingBox = document.getElementById("talkingBox");
     const onlineBadge = document.getElementById("onlineBadge");
@@ -273,6 +386,11 @@
             { urls: "stun:stun.l.google.com:19302" }
         ]
     };
+
+    function setStatus(text) {
+        statusText.innerText = text;
+        miniStatus.innerText = text;
+    }
 
     async function joinRoom() {
         username = document.getElementById("username").value.trim();
@@ -289,7 +407,14 @@
         }
 
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            localStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            });
+
             audioTrack = localStream.getAudioTracks()[0];
             audioTrack.enabled = false;
         } catch (err) {
@@ -303,8 +428,8 @@
             username: username
         });
 
-        statusText.innerText = "Kanala katıldın";
-        channelText.innerText = "Kanal: " + room;
+        setStatus("Kanala katıldın");
+        channelText.innerText = room;
         talkingBox.innerText = "Kimse konuşmuyor";
     }
 
@@ -366,7 +491,7 @@
     });
 
     socket.on("user-joined", (user) => {
-        statusText.innerText = user.username + " kanala katıldı";
+        setStatus(user.username + " kanala katıldı");
     });
 
     socket.on("offer", async (data) => {
@@ -406,6 +531,8 @@
     socket.on("room-users", (users) => {
         const names = Object.values(users);
 
+        userCount.innerText = names.length + " kişi";
+
         if (names.length === 0) {
             usersDiv.innerText = "Henüz kimse yok";
         } else {
@@ -441,7 +568,7 @@
         pttButton.classList.remove("active");
         pttButton.classList.remove("busy");
 
-        statusText.innerText = "Dinlemede";
+        setStatus("Dinlemede");
 
         talkingBox.classList.remove("active");
         talkingBox.classList.remove("busy");
@@ -462,7 +589,7 @@
             pttButton.classList.add("active");
             pttButton.classList.remove("busy");
 
-            statusText.innerText = "Konuşuyorsun...";
+            setStatus("Konuşuyorsun...");
             talkingBox.innerText = "🎙️ Sen konuşuyorsun";
 
             onlineBadge.classList.remove("busy");
@@ -470,7 +597,7 @@
         } else {
             pttButton.classList.add("busy");
 
-            statusText.innerText = "🎤 " + data.username + " konuşuyor...";
+            setStatus("🎤 " + data.username + " konuşuyor...");
             talkingBox.innerText = "🎤 " + data.username + " konuşuyor...";
 
             onlineBadge.classList.add("busy");
@@ -484,7 +611,7 @@
         pttButton.classList.remove("active");
         pttButton.classList.remove("busy");
 
-        statusText.innerText = "Dinlemede";
+        setStatus("Dinlemede");
 
         talkingBox.classList.remove("active");
         talkingBox.classList.remove("busy");
@@ -497,7 +624,7 @@
     socket.on("channel-busy", (data) => {
         pttButton.classList.add("busy");
 
-        statusText.innerText = "⛔ Kanal meşgul";
+        setStatus("⛔ Kanal meşgul");
         talkingBox.classList.add("active");
         talkingBox.classList.add("busy");
         talkingBox.innerText = "⛔ " + data.username + " konuşuyor";
