@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Çoklu Telsiz</title>
+    <style>
+        body {
+            background: #0b0f0c;
+            color: #00ff66;
+            font-family: Arial;
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        input, button {
+            padding: 12px;
+            margin: 6px;
+            font-size: 17px;
+        }
+
+        #ptt {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            font-size: 32px;
+            background: #111;
+            color: #00ff66;
+            border: 4px solid #00ff66;
+        }
+
+        #ptt.active {
+            background: #00ff66;
+            color: #000;
+        }
+
+        #users {
+            margin-top: 20px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📡 ÇOKLU TELSİZ</h1>
+
+    <input id="username" placeholder="Kullanıcı adın">
+    <br>
+    <input id="room" placeholder="Kanal adı">
+    <br>
+    <button onclick="joinRoom()">Kanala Katıl</button>
+
+    <br><br>
+
+    <button id="ptt">PTT</button>
+
+    <p id="status">Hazır</p>
+
+    <div id="users">Bağlı kişiler: -</div>
+
+    <div id="audios"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        let room = "";
+        let username = "";
+        let localStream;
+        let audioTrack;
+
+        const peers = {};
+        const remoteAudios = {};
+
+        const pttButton = document.getElementById("ptt");
+        const statusText = document.getElementById("status");
+        const usersDiv = document.getElementById("users");
+        const audiosDiv = document.getElementById("audios");
+
+        const config = {
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" }
+            ]
+        };
+
+        async function joinRoom() {
+            username = document.getElementById("username").value.trim();
+            room = document.getElementById("room").value.trim();
+
+            if (!username) {
+                alert("Kullanıcı adı gir");
+                return;
+            }
+
+            if (!room) {
+                alert("Kanal adı gir");
+                return;
+            }
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioTrack = localStream.getAudioTracks()[0];
+                audioTrack.enabled = false;
+            } catch (err) {
+                alert("Bu cihazda mikrofon yok, sadece dinleme modu açıldı.");
+                localStream = new MediaStream();
+                audioTrack = null;
+            }
+
+            socket.emit("join-room", {
+                room: room,
+                username: username
+            });
+
+            statusText.innerText = "Kanala katıldın: " + room;
+        }
+
+        function createPeer(targetId) {
+            const pc = new RTCPeerConnection(config);
+            peers[targetId] = pc;
+
+            if (localStream && localStream.getTracks().length > 0) {
+                localStream.getTracks().forEach(track => {
+                    pc.addTrack(track, localStream);
+                });
+            } else {
+                pc.addTransceiver("audio", { direction: "recvonly" });
+            }
+
+            pc.ontrack = (event) => {
+                if (!remoteAudios[targetId]) {
+                    const audio = document.createElement("audio");
+                    audio.autoplay = true;
+                    audio.playsInline = true;
+                    audio.volume = 1.0;
+                    audiosDiv.appendChild(audio);
+                    remoteAudios[targetId] = audio;
+                }
+
+                remoteAudios[targetId].srcObject = event.streams[0];
+
+                remoteAudios[targetId].play().catch(() => {
+                    alert("Ses geldi ama Chrome çalmadı. Sayfaya bir kere tıkla.");
+                });
+            };
+
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit("ice-candidate", {
+                        target: targetId,
+                        candidate: event.candidate
+                    });
+                }
+            };
+
+            return pc;
+        }
+
+        socket.on("existing-users", async (users) => {
+            for (const id in users) {
+                if (id === socket.id) continue;
+
+                const pc = createPeer(id);
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                socket.emit("offer", {
+                    target: id,
+                    offer: offer
+                });
+            }
+        });
+
+        socket.on("user-joined", (user) => {
+            statusText.innerText = user.username + " kanala katıldı";
+        });
+
+        socket.on("offer", async (data) => {
+            const pc = createPeer(data.from);
+
+            await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+
+            socket.emit("answer", {
+                target: data.from,
+                answer: answer
+            });
+        });
+
+        socket.on("answer", async (data) => {
+            const pc = peers[data.from];
+
+            if (pc) {
+                await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+            }
+        });
+
+        socket.on("ice-candidate", async (data) => {
+            const pc = peers[data.from];
+
+            if (pc && data.candidate) {
+                try {
+                    await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+                } catch (err) {
+                    console.log("ICE hatası:", err);
+                }
+            }
+        });
+
+        socket.on("room-users", (users) => {
+            const names = Object.values(users);
+            usersDiv.innerText = "Bağlı kişiler: " + names.join(", ");
+        });
+
+        socket.on("user-left", (id) => {
+            if (peers[id]) {
+                peers[id].close();
+                delete peers[id];
+            }
+
+            if (remoteAudios[id]) {
+                remoteAudios[id].remove();
+                delete remoteAudios[id];
+            }
+        });
+
+        function startPTT() {
+            if (!audioTrack) {
+                alert("Bu cihazda mikrofon yok, sadece dinleyebilirsin.");
+                return;
+            }
+
+            socket.emit("ptt-start");
+        }
+
+        function stopPTT() {
+            if (!audioTrack) return;
+
+            audioTrack.enabled = false;
+            pttButton.classList.remove("active");
+            statusText.innerText = "Dinlemede";
+            socket.emit("ptt-stop");
+        }
+
+        socket.on("ptt-start", (data) => {
+            if (data.id === socket.id) {
+                audioTrack.enabled = true;
+                pttButton.classList.add("active");
+                statusText.innerText = "Konuşuyorsun...";
+            } else {
+                statusText.innerText = "🎤 " + data.username + " konuşuyor...";
+            }
+        });
+
+        socket.on("ptt-stop", () => {
+            audioTrack && (audioTrack.enabled = false);
+            pttButton.classList.remove("active");
+            statusText.innerText = "Dinlemede";
+        });
+
+        socket.on("channel-busy", (data) => {
+            statusText.innerText = "⛔ Kanal meşgul: " + data.username + " konuşuyor";
+        });
+
+        pttButton.addEventListener("mousedown", startPTT);
+        pttButton.addEventListener("mouseup", stopPTT);
+        pttButton.addEventListener("mouseleave", stopPTT);
+
+        pttButton.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            startPTT();
+        });
+
+        pttButton.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            stopPTT();
+        });
+    </script>
+
+</body>
+</html>
