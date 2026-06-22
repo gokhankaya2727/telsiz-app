@@ -1,652 +1,1126 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <title>Telsiz App Premium</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at top, #12351f 0%, transparent 35%),
-                linear-gradient(180deg, #020604, #07110c);
-            color: #eafff1;
-            font-family: Arial, sans-serif;
-        }
-
-        .app {
-            max-width: 440px;
-            margin: auto;
-            min-height: 100vh;
-            padding: 18px;
-        }
-
-        .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .brand {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 900;
-            color: #46ff5f;
-            letter-spacing: 1px;
-        }
-
-        .sub {
-            color: #8fb99a;
-            font-size: 12px;
-            margin-top: 3px;
-        }
-
-        .badge {
-            background: #102819;
-            color: #46ff5f;
-            padding: 9px 14px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 800;
-            border: 1px solid #235c34;
-        }
-
-        .badge.busy {
-            background: #3b1010;
-            color: #ff4b4b;
-            border-color: #ff4b4b;
-        }
-
-        .panel {
-            background: rgba(13, 28, 18, 0.92);
-            border: 1px solid #1d4428;
-            border-radius: 28px;
-            padding: 18px;
-            box-shadow: 0 20px 60px rgba(0, 255, 102, 0.12);
-        }
-
-        .login-card {
-            background: #08120c;
-            border: 1px solid #1f3f29;
-            border-radius: 22px;
-            padding: 15px;
-        }
-
-        .label {
-            color: #8fb99a;
-            font-size: 12px;
-            margin-top: 8px;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 16px;
-            border: 1px solid #245d38;
-            background: #030806;
-            color: white;
-            font-size: 16px;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #46ff5f;
-            box-shadow: 0 0 0 3px rgba(70, 255, 95, 0.12);
-        }
-
-        .join {
-            width: 100%;
-            padding: 15px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #46ff5f, #18b84b);
-            color: #001607;
-            font-size: 17px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(70, 255, 95, 0.22);
-        }
-
-        .info-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .info-box {
-            background: #07110c;
-            border: 1px solid #1f3f29;
-            border-radius: 18px;
-            padding: 12px;
-            min-height: 68px;
-        }
-
-        .info-title {
-            color: #7ca887;
-            font-size: 12px;
-        }
-
-        .info-value {
-            margin-top: 7px;
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: bold;
-            word-break: break-word;
-        }
-
-        .status {
-            text-align: center;
-            margin-top: 18px;
-            font-size: 18px;
-            min-height: 28px;
-            color: #46ff5f;
-            font-weight: 900;
-        }
-
-        .talking-box {
-            margin-top: 14px;
-            padding: 15px;
-            border-radius: 20px;
-            background: #07110c;
-            border: 1px solid #1f3f29;
-            color: #9fbba8;
-            text-align: center;
-            font-size: 16px;
-            min-height: 56px;
-        }
-
-        .talking-box.active {
-            color: #46ff5f;
-            border-color: #46ff5f;
-            box-shadow: 0 0 30px rgba(70, 255, 95, 0.35);
-            animation: pulseBox 1s infinite;
-        }
-
-        .talking-box.busy {
-            color: #ff4b4b;
-            border-color: #ff4b4b;
-            box-shadow: 0 0 30px rgba(255, 75, 75, 0.35);
-        }
-
-        @keyframes pulseBox {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.025); }
-            100% { transform: scale(1); }
-        }
-
-        .ptt-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 26px;
-            position: relative;
-        }
-
-        .ring {
-            position: absolute;
-            width: 244px;
-            height: 244px;
-            border-radius: 50%;
-            border: 1px solid rgba(70, 255, 95, 0.18);
-        }
-
-        .ring.two {
-            width: 274px;
-            height: 274px;
-            opacity: 0.45;
-        }
-
-        #ptt {
-            position: relative;
-            z-index: 2;
-            width: 214px;
-            height: 214px;
-            border-radius: 50%;
-            border: 5px solid #46ff5f;
-            background:
-                radial-gradient(circle at 35% 25%, #1d3d27, #07110c 60%),
-                #07110c;
-            color: #46ff5f;
-            font-size: 40px;
-            font-weight: 1000;
-            box-shadow:
-                inset 0 0 25px rgba(70, 255, 95, 0.12),
-                0 0 42px rgba(70, 255, 95, 0.26);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        #ptt.active {
-            background: linear-gradient(135deg, #46ff5f, #1bd64d);
-            color: #001607;
-            box-shadow: 0 0 75px rgba(70, 255, 95, 0.8);
-            transform: scale(0.96);
-            animation: pulsePTT 0.75s infinite;
-        }
-
-        #ptt.busy {
-            border-color: #ff4b4b;
-            color: #ff4b4b;
-            box-shadow: 0 0 45px rgba(255, 75, 75, 0.55);
-        }
-
-        @keyframes pulsePTT {
-            0% { box-shadow: 0 0 30px rgba(70, 255, 95, 0.55); }
-            50% { box-shadow: 0 0 90px rgba(70, 255, 95, 0.95); }
-            100% { box-shadow: 0 0 30px rgba(70, 255, 95, 0.55); }
-        }
-
-        .users-card {
-            margin-top: 28px;
-            background: #07110c;
-            border: 1px solid #1f3f29;
-            border-radius: 22px;
-            padding: 15px;
-        }
-
-        .users-head {
-            display: flex;
-            justify-content: space-between;
-            color: #9fbba8;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        #users {
-            color: #ffffff;
-            font-size: 15px;
-            line-height: 1.8;
-            white-space: pre-line;
-        }
-
-        .bottom-bar {
-            margin-top: 16px;
-            background: #040907;
-            border: 1px solid #173520;
-            border-radius: 18px;
-            padding: 12px;
-            color: #6e9278;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .hidden-audios {
-            display: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAYATEL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#05070d;color:white;display:flex;justify-content:center;min-height:100vh}
+.app{width:390px;min-height:100vh;background:linear-gradient(180deg,#07142b,#02050c);padding:18px}
+.header{display:flex;justify-content:space-between;margin-bottom:14px}
+.brand h1{color:#00d9ff;font-size:30px;font-weight:900;text-shadow:0 0 12px #00d9ff}
+.brand p{font-size:12px;color:#7fbfff}
+.status{font-size:12px;padding:7px 10px;border-radius:20px;background:#121b2d;color:#ff4d4d}
+.status.ok{color:#00ff99}
+.panel{background:#081225;border:1px solid #12345a;border-radius:18px;padding:14px;margin-bottom:14px}
+label{font-size:12px;color:#9ecfff}
+input,select{width:100%;margin-top:6px;margin-bottom:10px;padding:12px;border-radius:12px;border:1px solid #23527a;background:#020814;color:white;font-size:15px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.btn{width:100%;border:none;border-radius:15px;padding:14px;font-size:16px;font-weight:800;color:white;background:#126bff}
+.btn.red{background:#ff273d}.btn.dark{background:#18233a}
+.radio{height:280px;border-radius:25px;background:radial-gradient(circle at top,#173b68,#07101f 65%);border:1px solid #1e5b8a;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px}
+.screen{width:260px;background:#020814;border:1px solid #0ad7ff;border-radius:16px;padding:14px;text-align:center}
+.channel{font-size:42px;font-weight:900;color:#00eaff;text-shadow:0 0 20px #00eaff}
+.info{font-size:13px;color:#b8dcff;margin-top:6px;min-height:18px}
+.ptt{width:190px;height:190px;border-radius:50%;border:none;background:linear-gradient(180deg,#ff3850,#980014);color:white;font-size:28px;font-weight:900;margin-top:18px}
+.ptt.talking{background:linear-gradient(180deg,#00ff99,#007a4e)}
+.ptt.busy{background:#555}
+.users{font-size:13px;color:#cfeaff;line-height:1.6}
+.log{height:130px;overflow:auto;background:#020814;border-radius:12px;padding:10px;font-size:12px;color:#9ecfff}
+.emergency{display:none;background:#41000a;border:1px solid #ff3048;border-radius:14px;padding:10px;margin-bottom:12px;text-align:center;font-weight:900}
+.small{font-size:12px;color:#8fb8d8;text-align:center;margin-top:10px}
+</style>
 </head>
-
 <body>
 
 <div class="app">
+  <div class="header">
+    <div class="brand">
+      <h1>KAYATEL</h1>
+      <p>Çoklu Telsiz Sistemi</p>
+    </div>
+    <div id="status" class="status">BAĞLI DEĞİL</div>
+  </div>
 
-    <div class="top">
-        <div class="brand">
-            <div class="logo">📡 TELSİZ</div>
-            <div class="sub">Online Push-To-Talk Sistemi</div>
-        </div>
-        <div class="badge" id="onlineBadge">ONLINE</div>
+  <div id="emergencyBox" class="emergency">🚨 KANAL 5 ACİL YAYIN AKTİF 🚨</div>
+
+  <div class="panel">
+    <label>Adın</label>
+    <input id="nameInput" value="KAYATEL Kullanıcı">
+
+    <div class="row">
+      <div>
+        <label>Oda</label>
+        <input id="roomInput" value="kayatel">
+      </div>
+      <div>
+        <label>Kanal</label>
+        <select id="channelSelect">
+          <option value="1">Kanal 1</option>
+          <option value="2">Kanal 2</option>
+          <option value="3">Kanal 3</option>
+          <option value="4">Kanal 4</option>
+          <option value="5">Kanal 5 - ACİL</option>
+          <option value="6">Kanal 6</option>
+          <option value="7">Kanal 7</option>
+          <option value="8">Kanal 8</option>
+        </select>
+      </div>
     </div>
 
-    <div class="panel">
+    <button id="joinBtn" class="btn">BAĞLAN</button>
+  </div>
 
-        <div class="login-card">
-            <div class="label">Kullanıcı Adı</div>
-            <input id="username" placeholder="Örn: Gökhan">
-
-            <div class="label">Kanal</div>
-            <input id="room" placeholder="Örn: merkez">
-
-            <button class="join" onclick="joinRoom()">KANALA KATIL</button>
-        </div>
-
-        <div class="info-row">
-            <div class="info-box">
-                <div class="info-title">Aktif Kanal</div>
-                <div class="info-value" id="channelText">Yok</div>
-            </div>
-
-            <div class="info-box">
-                <div class="info-title">Durum</div>
-                <div class="info-value" id="miniStatus">Hazır</div>
-            </div>
-        </div>
-
-        <div class="status" id="status">Hazır</div>
-
-        <div class="talking-box" id="talkingBox">
-            Kimse konuşmuyor
-        </div>
-
-        <div class="ptt-area">
-            <div class="ring"></div>
-            <div class="ring two"></div>
-            <button id="ptt">PTT</button>
-        </div>
-
-        <div class="users-card">
-            <div class="users-head">
-                <span>Bağlı kişiler</span>
-                <span id="userCount">0 kişi</span>
-            </div>
-            <div id="users">Henüz kimse yok</div>
-        </div>
-
-        <div class="bottom-bar">
-            WebRTC • Socket.io • Online Telsiz
-        </div>
-
+  <div class="radio">
+    <div class="screen">
+      <div id="channelText" class="channel">KANAL 1</div>
+      <div id="infoText" class="info">Sunucu bekleniyor</div>
     </div>
+    <button id="pttBtn" class="ptt">PTT</button>
+  </div>
 
-    <div id="audios" class="hidden-audios"></div>
+  <div class="panel">
+    <div class="row">
+      <button id="muteBtn" class="btn dark">MİK AÇIK</button>
+      <button id="leaveBtn" class="btn red">ÇIK</button>
+    </div>
+  </div>
 
+  <div class="panel">
+    <b>Bağlı Kullanıcılar</b>
+    <div id="usersBox" class="users">Henüz yok</div>
+  </div>
+
+  <div class="panel">
+    <b>Kayıt</b>
+    <div id="log" class="log"></div>
+  </div>
+
+  <div class="small">Basılı tut konuş • Bırak sus • Kanal 5 herkese acil yayın</div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
-
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-    const socket = io();
+const SERVER = "http://192.168.1.94:4000";
 
-    let room = "";
-    let username = "";
-    let localStream;
-    let audioTrack;
+const socket = io(SERVER, {
+  transports: ["polling"],
+  reconnection: true,
+  timeout: 20000
+});
 
-    const peers = {};
-    const remoteAudios = {};
+let localStream = null;
+let peers = {};
+let joined = false;
+let muted = false;
+let channelBusy = false;
+let iAmTalking = false;
 
-    const pttButton = document.getElementById("ptt");
-    const statusText = document.getElementById("status");
-    const miniStatus = document.getElementById("miniStatus");
-    const channelText = document.getElementById("channelText");
-    const usersDiv = document.getElementById("users");
-    const userCount = document.getElementById("userCount");
-    const audiosDiv = document.getElementById("audios");
-    const talkingBox = document.getElementById("talkingBox");
-    const onlineBadge = document.getElementById("onlineBadge");
+let myName = "";
+let room = "";
+let channel = "1";
 
-    const config = {
-        iceServers: [
-            { urls: "stun:stun.l.google.com:19302" }
-        ]
-    };
+const statusEl = document.getElementById("status");
+const joinBtn = document.getElementById("joinBtn");
+const leaveBtn = document.getElementById("leaveBtn");
+const pttBtn = document.getElementById("pttBtn");
+const muteBtn = document.getElementById("muteBtn");
+const nameInput = document.getElementById("nameInput");
+const roomInput = document.getElementById("roomInput");
+const channelSelect = document.getElementById("channelSelect");
+const channelText = document.getElementById("channelText");
+const infoText = document.getElementById("infoText");
+const usersBox = document.getElementById("usersBox");
+const logBox = document.getElementById("log");
+const emergencyBox = document.getElementById("emergencyBox");
 
-    function setStatus(text) {
-        statusText.innerText = text;
-        miniStatus.innerText = text;
+const rtcConfig = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443?transport=tcp",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    }
+  ]
+}; 
+
+function log(msg){
+  const time = new Date().toLocaleTimeString("tr-TR");
+  logBox.innerHTML += `[${time}] ${msg}<br>`;
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function setStatus(ok,text){
+  statusEl.textContent = text;
+  statusEl.className = ok ? "status ok" : "status";
+}
+
+function updateChannelUI(){
+  channelText.textContent = "KANAL " + channel;
+  emergencyBox.style.display = channel === "5" ? "block" : "none";
+}
+
+function setMic(enabled){
+  if(!localStream) return;
+  localStream.getAudioTracks().forEach(t=>{
+    t.enabled = enabled && !muted;
+  });
+}
+
+async function getMicrophone(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    throw new Error("navigator.mediaDevices.getUserMedia yok");
+  }
+
+  try{
+    return await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      },
+      video: false
+    });
+  }catch(e){
+    log("İlk mikrofon denemesi olmadı: " + e.name + " - " + e.message);
+    return await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    });
+  }
+}
+
+async function joinRadio(){
+  if(joined) return;
+
+  if(!socket.connected){
+    infoText.textContent = "Sunucu bağlı değil";
+    log("Socket bağlı değil");
+    return;
+  }
+
+  myName = nameInput.value.trim() || "KAYATEL Kullanıcı";
+  room = roomInput.value.trim() || "kayatel";
+  channel = channelSelect.value;
+
+  updateChannelUI();
+
+  try{
+    infoText.textContent = "Mikrofon izni bekleniyor";
+
+    localStream = await getMicrophone();
+
+    setMic(false);
+
+    socket.emit("join-room", {
+      room: room,
+      channel: channel,
+      name: myName
+    });
+
+    joined = true;
+    setStatus(true,"BAĞLI");
+    infoText.textContent = "Bağlandı, PTT bas konuş";
+    log("Mikrofon alındı");
+  }catch(err){
+    infoText.textContent = "Mikrofon hatası";
+    alert("Mikrofon hatası: " + err.name + " - " + err.message);
+    log("Mikrofon hatası: " + err.name + " - " + err.message);
+  }
+}
+
+function createPeer(userId, initiator){
+  if(peers[userId]) return peers[userId];
+  if(!localStream) return null;
+
+  const pc = new RTCPeerConnection(rtcConfig);
+  peers[userId] = pc;
+
+  localStream.getTracks().forEach(track=>{
+    pc.addTrack(track, localStream);
+  });
+
+  pc.onicecandidate = e=>{
+    if(e.candidate){
+      socket.emit("ice-candidate", {
+        to: userId,
+        candidate: e.candidate
+      });
+    }
+  };
+
+  pc.ontrack = e=>{
+    let audio = document.getElementById("audio-" + userId);
+
+    if(!audio){
+      audio = document.createElement("audio");
+      audio.id = "audio-" + userId;
+      audio.autoplay = true;
+      audio.playsInline = true;
+      audio.controls = false;
+      document.body.appendChild(audio);
     }
 
-    async function joinRoom() {
-        username = document.getElementById("username").value.trim();
-        room = document.getElementById("room").value.trim();
+    audio.srcObject = e.streams[0];
 
-        if (!username) {
-            alert("Kullanıcı adı gir");
-            return;
-        }
+    audio.play().catch(()=>{
+      log("Ses için ekrana dokun");
+    });
+  };
 
-        if (!room) {
-            alert("Kanal adı gir");
-            return;
-        }
+  pc.onconnectionstatechange = ()=>{
+    log("WebRTC: " + pc.connectionState);
+  };
 
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
-                }
-            });
-
-            audioTrack = localStream.getAudioTracks()[0];
-            audioTrack.enabled = false;
-        } catch (err) {
-            alert("Bu cihazda mikrofon yok, sadece dinleme modu açıldı.");
-            localStream = new MediaStream();
-            audioTrack = null;
-        }
-
-        socket.emit("join-room", {
-            room: room,
-            username: username
+  if(initiator){
+    pc.createOffer()
+      .then(offer=>pc.setLocalDescription(offer))
+      .then(()=>{
+        socket.emit("offer", {
+          to: userId,
+          offer: pc.localDescription
         });
+      })
+      .catch(err=>log("Offer hata: " + err.message));
+  }
 
-        setStatus("Kanala katıldın");
-        channelText.innerText = room;
-        talkingBox.innerText = "Kimse konuşmuyor";
-    }
+  return pc;
+}
 
-    function createPeer(targetId) {
-        const pc = new RTCPeerConnection(config);
-        peers[targetId] = pc;
+function startTalking(){
+  if(!joined){
+    infoText.textContent = "Önce BAĞLAN";
+    return;
+  }
 
-        if (localStream && localStream.getTracks().length > 0) {
-            localStream.getTracks().forEach(track => {
-                pc.addTrack(track, localStream);
-            });
-        } else {
-            pc.addTransceiver("audio", { direction: "recvonly" });
-        }
+  if(muted){
+    infoText.textContent = "Mik kapalı";
+    return;
+  }
 
-        pc.ontrack = (event) => {
-            if (!remoteAudios[targetId]) {
-                const audio = document.createElement("audio");
-                audio.autoplay = true;
-                audio.playsInline = true;
-                audio.volume = 1.0;
-                audiosDiv.appendChild(audio);
-                remoteAudios[targetId] = audio;
-            }
+  if(channelBusy && !iAmTalking){
+    infoText.textContent = "KANAL MEŞGUL";
+    return;
+  }
 
-            remoteAudios[targetId].srcObject = event.streams[0];
+  socket.emit("ptt-start");
+}
 
-            remoteAudios[targetId].play().catch(() => {
-                alert("Ses geldi ama tarayıcı çalmadı. Sayfaya bir kere dokun.");
-            });
-        };
+function reallyStartTalking(){
+  iAmTalking = true;
+  channelBusy = true;
 
-        pc.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket.emit("ice-candidate", {
-                    target: targetId,
-                    candidate: event.candidate
-                });
-            }
-        };
+  pttBtn.classList.add("talking");
+  pttBtn.classList.remove("busy");
+  pttBtn.textContent = "KONUŞ";
 
-        return pc;
-    }
+  setMic(true);
 
-    socket.on("existing-users", async (users) => {
-        for (const id in users) {
-            if (id === socket.id) continue;
+  infoText.textContent = channel === "5"
+    ? "🚨 ACİL YAYINDASIN"
+    : "Konuşuyorsun";
+}
 
-            const pc = createPeer(id);
+function stopTalking(){
+  if(!joined) return;
 
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
+  if(iAmTalking){
+    socket.emit("ptt-stop");
+  }
 
-            socket.emit("offer", {
-                target: id,
-                offer: offer
-            });
-        }
+  iAmTalking = false;
+  setMic(false);
+
+  pttBtn.classList.remove("talking");
+  pttBtn.classList.remove("busy");
+  pttBtn.textContent = "PTT";
+  infoText.textContent = "Dinlemede";
+}
+
+function leaveRadio(){
+  Object.values(peers).forEach(pc=>pc.close());
+  peers = {};
+
+  if(localStream){
+    localStream.getTracks().forEach(t=>t.stop());
+    localStream = null;
+  }
+
+  if(socket.connected){
+    socket.emit("leave-room");
+  }
+
+  joined = false;
+  channelBusy = false;
+  iAmTalking = false;
+
+  setStatus(socket.connected,"SUNUCU VAR");
+  infoText.textContent = "Çıkış yapıldı";
+  usersBox.textContent = "Henüz yok";
+}
+
+joinBtn.onclick = joinRadio;
+leaveBtn.onclick = leaveRadio;
+
+muteBtn.onclick = ()=>{
+  muted = !muted;
+  muteBtn.textContent = muted ? "MİK KAPALI" : "MİK AÇIK";
+  if(muted) stopTalking();
+};
+
+channelSelect.onchange = ()=>{
+  const oldChannel = channel;
+  channel = channelSelect.value;
+  updateChannelUI();
+
+  if(joined){
+    Object.values(peers).forEach(pc=>pc.close());
+    peers = {};
+    channelBusy = false;
+    iAmTalking = false;
+    setMic(false);
+
+    socket.emit("change-channel", {
+      room: room,
+      oldChannel: oldChannel,
+      newChannel: channel,
+      name: myName
     });
 
-    socket.on("user-joined", (user) => {
-        setStatus(user.username + " kanala katıldı");
+    infoText.textContent = "Kanal değişti";
+    log("Kanal değişti: KANAL " + channel);
+  }
+};
+
+pttBtn.addEventListener("mousedown", startTalking);
+pttBtn.addEventListener("mouseup", stopTalking);
+pttBtn.addEventListener("mouseleave", stopTalking);
+
+pttBtn.addEventListener("touchstart", e=>{
+  e.preventDefault();
+  startTalking();
+},{passive:false});
+
+pttBtn.addEventListener("touchend", e=>{
+  e.preventDefault();
+  stopTalking();
+},{passive:false});
+
+socket.on("connect", ()=>{
+  setStatus(true,"SUNUCU VAR");
+  infoText.textContent = "Sunucu bağlı, BAĞLAN bas";
+  log("Sunucu bağlı");
+});
+
+socket.on("disconnect", ()=>{
+  setStatus(false,"SUNUCU YOK");
+  infoText.textContent = "Sunucu koptu";
+  log("Sunucu koptu");
+});
+
+socket.on("connect_error", err=>{
+  setStatus(false,"HATA");
+  infoText.textContent = "Sunucu hatası";
+  log("Socket hata: " + err.message);
+});
+
+socket.on("joined-ok", user=>{
+  setStatus(true,"BAĞLI");
+  infoText.textContent = "Bağlandı, PTT bas konuş";
+  log("Odaya girdin: KANAL " + user.channel);
+});
+
+socket.on("room-users", users=>{
+  usersBox.innerHTML = users.map(u=>{
+    return "• " + u.name + " - KANAL " + u.channel + (u.channel === "5" ? " 🚨" : "");
+  }).join("<br>") || "Henüz yok";
+});
+
+socket.on("user-joined", user=>{
+  if(!joined) return;
+  if(user.id === socket.id) return;
+
+  const sameChannel = user.channel === channel;
+  const emergencyRelated = user.channel === "5" || channel === "5";
+
+  if(!sameChannel && !emergencyRelated) return;
+
+  log(user.name + " katıldı");
+  createPeer(user.id, true);
+});
+
+socket.on("user-left", user=>{
+  if(peers[user.id]){
+    peers[user.id].close();
+    delete peers[user.id];
+  }
+
+  const audio = document.getElementById("audio-" + user.id);
+  if(audio) audio.remove();
+
+  log(user.name + " ayrıldı");
+});
+
+socket.on("ptt-started", data=>{
+  channelBusy = true;
+
+  if(data.id === socket.id){
+    reallyStartTalking();
+  }else{
+    pttBtn.classList.add("busy");
+    pttBtn.textContent = "MEŞGUL";
+
+    infoText.textContent = data.emergency
+      ? "🚨 " + data.name + " ACİL YAYINDA"
+      : data.name + " konuşuyor";
+  }
+});
+
+socket.on("ptt-stopped", ()=>{
+  channelBusy = false;
+  iAmTalking = false;
+
+  setMic(false);
+
+  pttBtn.classList.remove("talking");
+  pttBtn.classList.remove("busy");
+  pttBtn.textContent = "PTT";
+
+  infoText.textContent = "Dinlemede";
+});
+
+socket.on("ptt-denied", data=>{
+  channelBusy = true;
+  pttBtn.classList.add("busy");
+  pttBtn.textContent = "MEŞGUL";
+  infoText.textContent = "KANAL MEŞGUL: " + data.name;
+});
+
+socket.on("emergency-started", data=>{
+  emergencyBox.style.display = "block";
+  emergencyBox.textContent = "🚨 " + data.name + " KANAL 5 ACİL YAYINDA 🚨";
+  infoText.textContent = "🚨 ACİL YAYIN VAR";
+});
+
+socket.on("emergency-stopped", ()=>{
+  emergencyBox.style.display = channel === "5" ? "block" : "none";
+  emergencyBox.textContent = "🚨 KANAL 5 ACİL YAYIN AKTİF 🚨";
+  infoText.textContent = "Dinlemede";
+});
+
+socket.on("offer", async data=>{
+  if(!joined) return;
+
+  const pc = createPeer(data.from, false);
+  if(!pc) return;
+
+  try{
+    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    socket.emit("answer", {
+      to: data.from,
+      answer: pc.localDescription
     });
+  }catch(err){
+    log("Offer alma hata: " + err.message);
+  }
+});
 
-    socket.on("offer", async (data) => {
-        const pc = createPeer(data.from);
+socket.on("answer", async data=>{
+  const pc = peers[data.from];
+  if(!pc) return;
 
-        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+  try{
+    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+  }catch(err){
+    log("Answer hata: " + err.message);
+  }
+});
 
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
+socket.on("ice-candidate", async data=>{
+  const pc = peers[data.from];
+  if(!pc || !data.candidate) return;
 
-        socket.emit("answer", {
-            target: data.from,
-            answer: answer
-        });
-    });
+  try{
+    await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+  }catch(err){
+    log("ICE hata: " + err.message);
+  }
+});
 
-    socket.on("answer", async (data) => {
-        const pc = peers[data.from];
-
-        if (pc) {
-            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-        }
-    });
-
-    socket.on("ice-candidate", async (data) => {
-        const pc = peers[data.from];
-
-        if (pc && data.candidate) {
-            try {
-                await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch (err) {
-                console.log("ICE hatası:", err);
-            }
-        }
-    });
-
-    socket.on("room-users", (users) => {
-        const names = Object.values(users);
-
-        userCount.innerText = names.length + " kişi";
-
-        if (names.length === 0) {
-            usersDiv.innerText = "Henüz kimse yok";
-        } else {
-            usersDiv.innerText = names.map(name => "🟢 " + name).join("\\n");
-        }
-    });
-
-    socket.on("user-left", (id) => {
-        if (peers[id]) {
-            peers[id].close();
-            delete peers[id];
-        }
-
-        if (remoteAudios[id]) {
-            remoteAudios[id].remove();
-            delete remoteAudios[id];
-        }
-    });
-
-    function startPTT() {
-        if (!audioTrack) {
-            alert("Bu cihazda mikrofon yok, sadece dinleyebilirsin.");
-            return;
-        }
-
-        socket.emit("ptt-start");
-    }
-
-    function stopPTT() {
-        if (!audioTrack) return;
-
-        audioTrack.enabled = false;
-        pttButton.classList.remove("active");
-        pttButton.classList.remove("busy");
-
-        setStatus("Dinlemede");
-
-        talkingBox.classList.remove("active");
-        talkingBox.classList.remove("busy");
-        talkingBox.innerText = "Kimse konuşmuyor";
-
-        onlineBadge.classList.remove("busy");
-        onlineBadge.innerText = "ONLINE";
-
-        socket.emit("ptt-stop");
-    }
-
-    socket.on("ptt-start", (data) => {
-        talkingBox.classList.add("active");
-
-        if (data.id === socket.id) {
-            audioTrack.enabled = true;
-
-            pttButton.classList.add("active");
-            pttButton.classList.remove("busy");
-
-            setStatus("Konuşuyorsun...");
-            talkingBox.innerText = "🎙️ Sen konuşuyorsun";
-
-            onlineBadge.classList.remove("busy");
-            onlineBadge.innerText = "TX";
-        } else {
-            pttButton.classList.add("busy");
-
-            setStatus("🎤 " + data.username + " konuşuyor...");
-            talkingBox.innerText = "🎤 " + data.username + " konuşuyor...";
-
-            onlineBadge.classList.add("busy");
-            onlineBadge.innerText = "BUSY";
-        }
-    });
-
-    socket.on("ptt-stop", () => {
-        if (audioTrack) audioTrack.enabled = false;
-
-        pttButton.classList.remove("active");
-        pttButton.classList.remove("busy");
-
-        setStatus("Dinlemede");
-
-        talkingBox.classList.remove("active");
-        talkingBox.classList.remove("busy");
-        talkingBox.innerText = "Kimse konuşmuyor";
-
-        onlineBadge.classList.remove("busy");
-        onlineBadge.innerText = "ONLINE";
-    });
-
-    socket.on("channel-busy", (data) => {
-        pttButton.classList.add("busy");
-
-        setStatus("⛔ Kanal meşgul");
-        talkingBox.classList.add("active");
-        talkingBox.classList.add("busy");
-        talkingBox.innerText = "⛔ " + data.username + " konuşuyor";
-
-        onlineBadge.classList.add("busy");
-        onlineBadge.innerText = "BUSY";
-    });
-
-    pttButton.addEventListener("mousedown", startPTT);
-    pttButton.addEventListener("mouseup", stopPTT);
-    pttButton.addEventListener("mouseleave", stopPTT);
-
-    pttButton.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        startPTT();
-    });
-
-    pttButton.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        stopPTT();
-    });
+updateChannelUI();
 </script>
-
 </body>
 </html>
+```
+```html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAYATEL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#05070d;color:white;display:flex;justify-content:center;min-height:100vh}
+.app{width:390px;min-height:100vh;background:linear-gradient(180deg,#07142b,#02050c);padding:18px}
+.header{display:flex;justify-content:space-between;margin-bottom:14px}
+.brand h1{color:#00d9ff;font-size:30px;font-weight:900;text-shadow:0 0 12px #00d9ff}
+.brand p{font-size:12px;color:#7fbfff}
+.status{font-size:12px;padding:7px 10px;border-radius:20px;background:#121b2d;color:#ff4d4d}
+.status.ok{color:#00ff99}
+.panel{background:#081225;border:1px solid #12345a;border-radius:18px;padding:14px;margin-bottom:14px}
+label{font-size:12px;color:#9ecfff}
+input,select{width:100%;margin-top:6px;margin-bottom:10px;padding:12px;border-radius:12px;border:1px solid #23527a;background:#020814;color:white;font-size:15px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.btn{width:100%;border:none;border-radius:15px;padding:14px;font-size:16px;font-weight:800;color:white;background:#126bff}
+.btn.red{background:#ff273d}.btn.dark{background:#18233a}
+.radio{height:280px;border-radius:25px;background:radial-gradient(circle at top,#173b68,#07101f 65%);border:1px solid #1e5b8a;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px}
+.screen{width:260px;background:#020814;border:1px solid #0ad7ff;border-radius:16px;padding:14px;text-align:center}
+.channel{font-size:42px;font-weight:900;color:#00eaff;text-shadow:0 0 20px #00eaff}
+.info{font-size:13px;color:#b8dcff;margin-top:6px;min-height:18px}
+.ptt{width:190px;height:190px;border-radius:50%;border:none;background:linear-gradient(180deg,#ff3850,#980014);color:white;font-size:28px;font-weight:900;margin-top:18px}
+.ptt.talking{background:linear-gradient(180deg,#00ff99,#007a4e)}
+.ptt.busy{background:#555}
+.users{font-size:13px;color:#cfeaff;line-height:1.6}
+.log{height:130px;overflow:auto;background:#020814;border-radius:12px;padding:10px;font-size:12px;color:#9ecfff}
+.emergency{display:none;background:#41000a;border:1px solid #ff3048;border-radius:14px;padding:10px;margin-bottom:12px;text-align:center;font-weight:900}
+.small{font-size:12px;color:#8fb8d8;text-align:center;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <h1>KAYATEL</h1>
+      <p>Çoklu Telsiz Sistemi</p>
+    </div>
+    <div id="status" class="status">BAĞLI DEĞİL</div>
+  </div>
+
+  <div id="emergencyBox" class="emergency">🚨 KANAL 5 ACİL YAYIN AKTİF 🚨</div>
+
+  <div class="panel">
+    <label>Adın</label>
+    <input id="nameInput" value="KAYATEL Kullanıcı">
+
+    <div class="row">
+      <div>
+        <label>Oda</label>
+        <input id="roomInput" value="kayatel">
+      </div>
+      <div>
+        <label>Kanal</label>
+        <select id="channelSelect">
+          <option value="1">Kanal 1</option>
+          <option value="2">Kanal 2</option>
+          <option value="3">Kanal 3</option>
+          <option value="4">Kanal 4</option>
+          <option value="5">Kanal 5 - ACİL</option>
+          <option value="6">Kanal 6</option>
+          <option value="7">Kanal 7</option>
+          <option value="8">Kanal 8</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="joinBtn" class="btn">BAĞLAN</button>
+  </div>
+
+  <div class="radio">
+    <div class="screen">
+      <div id="channelText" class="channel">KANAL 1</div>
+      <div id="infoText" class="info">Sunucu bekleniyor</div>
+    </div>
+    <button id="pttBtn" class="ptt">PTT</button>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <button id="muteBtn" class="btn dark">MİK AÇIK</button>
+      <button id="leaveBtn" class="btn red">ÇIK</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <b>Bağlı Kullanıcılar</b>
+    <div id="usersBox" class="users">Henüz yok</div>
+  </div>
+
+  <div class="panel">
+    <b>Kayıt</b>
+    <div id="log" class="log"></div>
+  </div>
+
+  <div class="small">Basılı tut konuş • Bırak sus • Kanal 5 herkese acil yayın</div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+const SERVER = "http://192.168.1.94:4000";
+
+const socket = io(SERVER, {
+  transports: ["polling"],
+  reconnection: true,
+  timeout: 20000
+});
+
+let localStream = null;
+let peers = {};
+let joined = false;
+let muted = false;
+let channelBusy = false;
+let iAmTalking = false;
+
+let myName = "";
+let room = "";
+let channel = "1";
+
+const statusEl = document.getElementById("status");
+const joinBtn = document.getElementById("joinBtn");
+const leaveBtn = document.getElementById("leaveBtn");
+const pttBtn = document.getElementById("pttBtn");
+const muteBtn = document.getElementById("muteBtn");
+const nameInput = document.getElementById("nameInput");
+const roomInput = document.getElementById("roomInput");
+const channelSelect = document.getElementById("channelSelect");
+const channelText = document.getElementById("channelText");
+const infoText = document.getElementById("infoText");
+const usersBox = document.getElementById("usersBox");
+const logBox = document.getElementById("log");
+const emergencyBox = document.getElementById("emergencyBox");
+
+const rtcConfig = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" }
+  ]
+};
+
+function log(msg){
+  const time = new Date().toLocaleTimeString("tr-TR");
+  logBox.innerHTML += `[${time}] ${msg}<br>`;
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function setStatus(ok,text){
+  statusEl.textContent = text;
+  statusEl.className = ok ? "status ok" : "status";
+}
+
+function updateChannelUI(){
+  channelText.textContent = "KANAL " + channel;
+  emergencyBox.style.display = channel === "5" ? "block" : "none";
+}
+
+function setMic(enabled){
+  if(!localStream) return;
+  localStream.getAudioTracks().forEach(t=>{
+    t.enabled = enabled && !muted;
+  });
+}
+
+async function getMicrophone(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    throw new Error("navigator.mediaDevices.getUserMedia yok");
+  }
+
+  try{
+    return await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      },
+      video: false
+    });
+  }catch(e){
+    log("İlk mikrofon denemesi olmadı: " + e.name + " - " + e.message);
+    return await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    });
+  }
+}
+
+async function joinRadio(){
+  if(joined) return;
+
+  if(!socket.connected){
+    infoText.textContent = "Sunucu bağlı değil";
+    log("Socket bağlı değil");
+    return;
+  }
+
+  myName = nameInput.value.trim() || "KAYATEL Kullanıcı";
+  room = roomInput.value.trim() || "kayatel";
+  channel = channelSelect.value;
+
+  updateChannelUI();
+
+  try{
+    infoText.textContent = "Mikrofon izni bekleniyor";
+
+    localStream = await getMicrophone();
+
+    setMic(false);
+
+    socket.emit("join-room", {
+      room: room,
+      channel: channel,
+      name: myName
+    });
+
+    joined = true;
+    setStatus(true,"BAĞLI");
+    infoText.textContent = "Bağlandı, PTT bas konuş";
+    log("Mikrofon alındı");
+  }catch(err){
+    infoText.textContent = "Mikrofon hatası";
+    alert("Mikrofon hatası: " + err.name + " - " + err.message);
+    log("Mikrofon hatası: " + err.name + " - " + err.message);
+  }
+}
+
+function createPeer(userId, initiator){
+  if(peers[userId]) return peers[userId];
+  if(!localStream) return null;
+
+  const pc = new RTCPeerConnection(rtcConfig);
+  peers[userId] = pc;
+
+  localStream.getTracks().forEach(track=>{
+    pc.addTrack(track, localStream);
+  });
+
+  pc.onicecandidate = e=>{
+    if(e.candidate){
+      socket.emit("ice-candidate", {
+        to: userId,
+        candidate: e.candidate
+      });
+    }
+  };
+
+  pc.ontrack = e=>{
+    let audio = document.getElementById("audio-" + userId);
+
+    if(!audio){
+      audio = document.createElement("audio");
+      audio.id = "audio-" + userId;
+      audio.autoplay = true;
+      audio.playsInline = true;
+      audio.controls = false;
+      document.body.appendChild(audio);
+    }
+
+    audio.srcObject = e.streams[0];
+
+    audio.play().catch(()=>{
+      log("Ses için ekrana dokun");
+    });
+  };
+
+  pc.onconnectionstatechange = ()=>{
+    log("WebRTC: " + pc.connectionState);
+  };
+
+  if(initiator){
+    pc.createOffer()
+      .then(offer=>pc.setLocalDescription(offer))
+      .then(()=>{
+        socket.emit("offer", {
+          to: userId,
+          offer: pc.localDescription
+        });
+      })
+      .catch(err=>log("Offer hata: " + err.message));
+  }
+
+  return pc;
+}
+
+function startTalking(){
+  if(!joined){
+    infoText.textContent = "Önce BAĞLAN";
+    return;
+  }
+
+  if(muted){
+    infoText.textContent = "Mik kapalı";
+    return;
+  }
+
+  if(channelBusy && !iAmTalking){
+    infoText.textContent = "KANAL MEŞGUL";
+    return;
+  }
+
+  socket.emit("ptt-start");
+}
+
+function reallyStartTalking(){
+  iAmTalking = true;
+  channelBusy = true;
+
+  pttBtn.classList.add("talking");
+  pttBtn.classList.remove("busy");
+  pttBtn.textContent = "KONUŞ";
+
+  setMic(true);
+
+  infoText.textContent = channel === "5"
+    ? "🚨 ACİL YAYINDASIN"
+    : "Konuşuyorsun";
+}
+
+function stopTalking(){
+  if(!joined) return;
+
+  if(iAmTalking){
+    socket.emit("ptt-stop");
+  }
+
+  iAmTalking = false;
+  setMic(false);
+
+  pttBtn.classList.remove("talking");
+  pttBtn.classList.remove("busy");
+  pttBtn.textContent = "PTT";
+  infoText.textContent = "Dinlemede";
+}
+
+function leaveRadio(){
+  Object.values(peers).forEach(pc=>pc.close());
+  peers = {};
+
+  if(localStream){
+    localStream.getTracks().forEach(t=>t.stop());
+    localStream = null;
+  }
+
+  if(socket.connected){
+    socket.emit("leave-room");
+  }
+
+  joined = false;
+  channelBusy = false;
+  iAmTalking = false;
+
+  setStatus(socket.connected,"SUNUCU VAR");
+  infoText.textContent = "Çıkış yapıldı";
+  usersBox.textContent = "Henüz yok";
+}
+
+joinBtn.onclick = joinRadio;
+leaveBtn.onclick = leaveRadio;
+
+muteBtn.onclick = ()=>{
+  muted = !muted;
+  muteBtn.textContent = muted ? "MİK KAPALI" : "MİK AÇIK";
+  if(muted) stopTalking();
+};
+
+channelSelect.onchange = ()=>{
+  const oldChannel = channel;
+  channel = channelSelect.value;
+  updateChannelUI();
+
+  if(joined){
+    Object.values(peers).forEach(pc=>pc.close());
+    peers = {};
+    channelBusy = false;
+    iAmTalking = false;
+    setMic(false);
+
+    socket.emit("change-channel", {
+      room: room,
+      oldChannel: oldChannel,
+      newChannel: channel,
+      name: myName
+    });
+
+    infoText.textContent = "Kanal değişti";
+    log("Kanal değişti: KANAL " + channel);
+  }
+};
+
+pttBtn.addEventListener("mousedown", startTalking);
+pttBtn.addEventListener("mouseup", stopTalking);
+pttBtn.addEventListener("mouseleave", stopTalking);
+
+pttBtn.addEventListener("touchstart", e=>{
+  e.preventDefault();
+  startTalking();
+},{passive:false});
+
+pttBtn.addEventListener("touchend", e=>{
+  e.preventDefault();
+  stopTalking();
+},{passive:false});
+
+socket.on("connect", ()=>{
+  setStatus(true,"SUNUCU VAR");
+  infoText.textContent = "Sunucu bağlı, BAĞLAN bas";
+  log("Sunucu bağlı");
+});
+
+socket.on("disconnect", ()=>{
+  setStatus(false,"SUNUCU YOK");
+  infoText.textContent = "Sunucu koptu";
+  log("Sunucu koptu");
+});
+
+socket.on("connect_error", err=>{
+  setStatus(false,"HATA");
+  infoText.textContent = "Sunucu hatası";
+  log("Socket hata: " + err.message);
+});
+
+socket.on("joined-ok", user=>{
+  setStatus(true,"BAĞLI");
+  infoText.textContent = "Bağlandı, PTT bas konuş";
+  log("Odaya girdin: KANAL " + user.channel);
+});
+
+socket.on("room-users", users=>{
+  usersBox.innerHTML = users.map(u=>{
+    return "• " + u.name + " - KANAL " + u.channel + (u.channel === "5" ? " 🚨" : "");
+  }).join("<br>") || "Henüz yok";
+});
+
+socket.on("user-joined", user=>{
+  if(!joined) return;
+  if(user.id === socket.id) return;
+
+  const sameChannel = user.channel === channel;
+  const emergencyRelated = user.channel === "5" || channel === "5";
+
+  if(!sameChannel && !emergencyRelated) return;
+
+  log(user.name + " katıldı");
+  createPeer(user.id, true);
+});
+
+socket.on("user-left", user=>{
+  if(peers[user.id]){
+    peers[user.id].close();
+    delete peers[user.id];
+  }
+
+  const audio = document.getElementById("audio-" + user.id);
+  if(audio) audio.remove();
+
+  log(user.name + " ayrıldı");
+});
+
+socket.on("ptt-started", data=>{
+  channelBusy = true;
+
+  if(data.id === socket.id){
+    reallyStartTalking();
+  }else{
+    pttBtn.classList.add("busy");
+    pttBtn.textContent = "MEŞGUL";
+
+    infoText.textContent = data.emergency
+      ? "🚨 " + data.name + " ACİL YAYINDA"
+      : data.name + " konuşuyor";
+  }
+});
+
+socket.on("ptt-stopped", ()=>{
+  channelBusy = false;
+  iAmTalking = false;
+
+  setMic(false);
+
+  pttBtn.classList.remove("talking");
+  pttBtn.classList.remove("busy");
+  pttBtn.textContent = "PTT";
+
+  infoText.textContent = "Dinlemede";
+});
+
+socket.on("ptt-denied", data=>{
+  channelBusy = true;
+  pttBtn.classList.add("busy");
+  pttBtn.textContent = "MEŞGUL";
+  infoText.textContent = "KANAL MEŞGUL: " + data.name;
+});
+
+socket.on("emergency-started", data=>{
+  emergencyBox.style.display = "block";
+  emergencyBox.textContent = "🚨 " + data.name + " KANAL 5 ACİL YAYINDA 🚨";
+  infoText.textContent = "🚨 ACİL YAYIN VAR";
+});
+
+socket.on("emergency-stopped", ()=>{
+  emergencyBox.style.display = channel === "5" ? "block" : "none";
+  emergencyBox.textContent = "🚨 KANAL 5 ACİL YAYIN AKTİF 🚨";
+  infoText.textContent = "Dinlemede";
+});
+
+socket.on("offer", async data=>{
+  if(!joined) return;
+
+  const pc = createPeer(data.from, false);
+  if(!pc) return;
+
+  try{
+    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    socket.emit("answer", {
+      to: data.from,
+      answer: pc.localDescription
+    });
+  }catch(err){
+    log("Offer alma hata: " + err.message);
+  }
+});
+
+socket.on("answer", async data=>{
+  const pc = peers[data.from];
+  if(!pc) return;
+
+  try{
+    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+  }catch(err){
+    log("Answer hata: " + err.message);
+  }
+});
+
+socket.on("ice-candidate", async data=>{
+  const pc = peers[data.from];
+  if(!pc || !data.candidate) return;
+
+  try{
+    await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+  }catch(err){
+    log("ICE hata: " + err.message);
+  }
+});
+
+updateChannelUI();
+</script>
+</body>
+</html>
+```
